@@ -1,330 +1,102 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>단일 분석기 P&ID 도면 (HTML/JS)</title>
-    <style>
-        /* 기본 레이아웃 (기존 Tailwind 클래스 대체) */
-        body {
-            margin: 0;
-            padding: 16px;
-            background-color: #e5e7eb; /* bg-gray-200 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            font-family: Arial, sans-serif;
-            box-sizing: border-box;
-        }
+\documentclass[11pt, a4paper]{article}
 
-        .canvas-container {
-            width: 100%;
-            max-width: 1152px; /* max-w-6xl */
-            height: 85vh;
-            background-color: #ffffff;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
-            overflow: auto;
-            border: 4px solid #334155; /* border-slate-700 */
-            position: relative;
-        }
+% --- UNIVERSAL PREAMBLE BLOCK ---
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=2cm, right=2cm]{geometry}
+\usepackage{fontspec}
+\usepackage[english, bidi=basic, provide=*]{babel}
 
-        svg {
-            width: 100%;
-            min-width: 1000px;
-            height: 100%;
-            display: block;
-        }
-    </style>
-</head>
-<body>
+\babelprovide[import, onchar=ids fonts]{english}
 
-    <div class="canvas-container">
-        <!-- SVG 캔버스 영역 -->
-        <svg id="pid-canvas" viewBox="0 0 1200 850">
-            <!-- JavaScript를 통해 도면 요소들이 여기에 렌더링됩니다. -->
-        </svg>
-    </div>
+% Set default/Latin font to Sans Serif in the main (rm) slot
+\babelfont{rm}{Noto Sans}
 
-    <script>
-        // ==========================================
-        // 1. P&ID 심볼 생성용 JavaScript 템플릿 함수들
-        // ==========================================
-        
-        const Line = (x1, y1, x2, y2, dashed = false) => `
-            <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" 
-                  stroke="#0f172a" stroke-width="2" 
-                  stroke-dasharray="${dashed ? '6,4' : 'none'}" />
-        `;
+\usepackage{enumitem}
+\setlist[itemize]{label=-}
+% --- END UNIVERSAL PREAMBLE BLOCK ---
 
-        const Dot = (x, y) => `
-            <circle cx="${x}" cy="${y}" r="5" fill="#0f172a" />
-        `;
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
 
-        const Arrow = (x, y, direction) => {
-            let transform = "";
-            if (direction === "RIGHT") transform = `translate(${x},${y})`;
-            if (direction === "LEFT") transform = `translate(${x},${y}) rotate(180)`;
-            if (direction === "UP") transform = `translate(${x},${y}) rotate(-90)`;
-            if (direction === "DOWN") transform = `translate(${x},${y}) rotate(90)`;
+% Custom Colors and Styling
+\usepackage[table]{xcolor}
+\definecolor{kjblue}{RGB}{31, 73, 125}
 
-            return `
-                <g transform="${transform}">
-                    <polygon points="-6,-5 4,0 -6,5" fill="#0f172a" />
-                </g>
-            `;
-        };
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.5pt}
+\lhead{\small \textbf{KJ Dynatech Inc.}}
+\rhead{\small Quotation No: KJ-QT-260327-001}
+\cfoot{\small Page \thepage\ of \pagpage}
 
-        const Valve = (x, y, label, orientation = 'H') => {
-            const isV = orientation === 'V';
-            const transform = `translate(${x},${y}) ${isV ? 'rotate(90)' : ''}`;
-            const textTransform = isV ? 'rotate(-90)' : '';
-            const textX = isV ? "-15" : "0";
-            const textY = isV ? "0" : "-15";
-            
-            return `
-                <g transform="${transform}">
-                    <polygon points="-10,-8 0,0 -10,8" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" />
-                    <polygon points="10,-8 0,0 10,8" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" />
-                    <text x="${textX}" y="${textY}" text-anchor="middle" font-size="12" font-weight="bold" fill="#0f172a" transform="${textTransform}">
-                        ${label}
-                    </text>
-                </g>
-            `;
-        };
+\begin{document}
 
-        const MeteringValve = (x, y, label) => `
-            <g transform="translate(${x},${y})">
-                <polygon points="-10,-8 0,0 -10,8" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" />
-                <polygon points="10,-8 0,0 10,8" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" />
-                <line x1="-12" y1="12" x2="10" y2="-10" stroke="#0f172a" stroke-width="1.5" />
-                <polygon points="8,-12 12,-12 12,-8" fill="#0f172a" />
-                <text y="-18" text-anchor="middle" font-size="12" font-weight="bold" fill="#0f172a">${label}</text>
-            </g>
-        `;
+% Header / Logo Placeholder area
+\begin{center}
+    {\LARGE \textbf{\textcolor{kjblue}{QUOTATION}}} \\
+    \vspace{0.2cm}
+    \small \textbf{KJ Dynatech Inc.} \\
+    \footnotesize Suite 506, Byucksan Digital Valley 6, 219 Gasan-digital 1-ro, Geumcheon-gu, Seoul, 08501, Korea \\
+    \footnotesize Tel: +82-2-858-9844 | Fax: +82-2-858-3047 | http://www.kjdyna.com
+\end{center}
 
-        const Valve3Way = (x, y, label, offsetX = 18, offsetY = -15) => `
-            <g transform="translate(${x},${y})">
-                <polygon points="-10,-8 0,0 -10,8" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" />
-                <polygon points="10,-8 0,0 10,8" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" />
-                <polygon points="-8,10 0,0 8,10" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" />
-                <text x="${offsetX}" y="${offsetY}" font-size="12" font-weight="bold" fill="#0f172a">${label}</text>
-            </g>
-        `;
+\vspace{0.5cm}
 
-        const Filter = (x, y, label) => `
-            <g transform="translate(${x},${y})">
-                <polygon points="0,-18 18,0 0,18 -18,0" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
-                <line x1="-10" y1="0" x2="10" y2="0" stroke="#0f172a" stroke-width="1" stroke-dasharray="2,2" />
-                <text y="4" text-anchor="middle" font-size="11" font-weight="bold" fill="#0f172a">${label}</text>
-            </g>
-        `;
+\begin{tabularx}{\textwidth}{lX l X}
+    \textbf{To:} & Sparks Instrument & \textbf{Date:} & March 27, 2026 \\
+    \textbf{Attn:} & Reference Person & \textbf{Quotation No:} & KJ-QT-260327-001 \\
+    \textbf{Project:} & \multicolumn{3}{l}{MV Motor \& IPB Online PDMS Site Working for Omon CCPP Project} \\
+\end{tabularx}
 
-        const Instrument = (x, y, label, desc) => `
-            <g transform="translate(${x},${y})">
-                <circle cx="0" cy="0" r="18" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
-                <text y="4" text-anchor="middle" font-size="12" font-weight="bold" fill="#0f172a">${label}</text>
-                ${desc ? `<text y="-22" text-anchor="middle" font-size="11" fill="#334155">${desc}</text>` : ''}
-            </g>
-        `;
+\vspace{0.8cm}
 
-        const FlowMeter = (x, y, label, desc) => `
-            <g transform="translate(${x},${y})">
-                <rect x="-12" y="-25" width="24" height="50" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
-                <line x1="-12" y1="-10" x2="12" y2="-10" stroke="#0f172a" stroke-width="1" />
-                <line x1="-12" y1="0" x2="12" y2="0" stroke="#0f172a" stroke-width="1" />
-                <line x1="-12" y1="10" x2="12" y2="10" stroke="#0f172a" stroke-width="1" />
-                <circle cx="0" cy="18" r="3" fill="#0f172a" />
-                <text x="20" y="0" font-size="12" font-weight="bold" fill="#0f172a">${label}</text>
-                ${desc ? `<text x="20" y="14" font-size="10" fill="#334155">${desc}</text>` : ''}
-            </g>
-        `;
+We are pleased to submit our quotation for the site services as detailed below:
 
-        const BoxBlock = (x, y, w, h, title, subtitle) => `
-            <g transform="translate(${x},${y})">
-                <rect x="${-w/2}" y="${-h/2}" width="${w}" height="${h}" fill="#f8fafc" stroke="#0f172a" stroke-width="2" rx="4" />
-                <text y="-5" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f172a">${title}</text>
-                ${subtitle ? `<text y="15" text-anchor="middle" font-size="11" fill="#475569">${subtitle}</text>` : ''}
-            </g>
-        `;
+\vspace{0.3cm}
 
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{|c|X|c|r|}
+    \hline
+    \rowcolor{kjblue!10} \textbf{No.} & \textbf{Description \& Specification} & \textbf{Qty/Unit} & \textbf{Amount (USD)} \\
+    \hline
+    \textbf{A} & \textbf{Site (Vietnam) Working (Optional)} & & \\
+    \hline
+    1 & \textbf{Supervising for PD Sensor Installation} \newline 
+    - Supervising for PD sensor installation \newline
+    - 3x motors for installation sample \newline
+    \textit{*Includes: Flight (1x round-trip), accommodations, meals, local transportation (car rent), and Visa issuance.} & 7 M.Day & -- \\
+    \hline
+    2 & \textbf{Erection \& Commissioning} \newline
+    - Checking for Equipments and Server Installation \newline
+    - Checking for Server PC \& S/W setting \newline
+    - Test for PDMS operating and DAU Calibration \newline
+    - Test for PD data reading and recording \newline
+    - Operator Training \newline
+    \textit{*Includes: Flight (4x round-trip), accommodations, meals, and local transportation (car rent).} & 120 M.Day & -- \\
+    \hline
+    \rowcolor{kjblue!5} \multicolumn{3}{|r|}{\textbf{TOTAL AMOUNT (Excluding VAT)}} & \textbf{US\$ 111,750.00} \\
+    \hline
+\end{tabularx}
 
-        // ==========================================
-        // 2. 도면 구성 (SVG 콘텐츠 조합)
-        // ==========================================
-        
-        const svgContent = `
-            <!-- Main Border -->
-            <rect x="20" y="20" width="1160" height="810" fill="none" stroke="#0f172a" stroke-width="3" />
-            
-            <!-- Title Block -->
-            <g transform="translate(880, 730)">
-                <rect x="0" y="0" width="300" height="100" fill="none" stroke="#0f172a" stroke-width="2" />
-                <line x1="0" y1="33" x2="300" y2="33" stroke="#0f172a" stroke-width="1" />
-                <line x1="0" y1="66" x2="300" y2="66" stroke="#0f172a" stroke-width="1" />
-                <line x1="100" y1="66" x2="100" y2="100" stroke="#0f172a" stroke-width="1" />
-                
-                <text x="150" y="22" text-anchor="middle" font-size="14" font-weight="bold">KJ Dynatech Inc.</text>
-                <text x="15" y="53" font-size="11" fill="#64748b">PROJECT</text>
-                <text x="80" y="53" font-size="12" font-weight="bold">SEO-INCHEON EXPANSION CCGT</text>
-                <text x="15" y="86" font-size="11" fill="#64748b">TITLE</text>
-                <text x="115" y="86" font-size="12" font-weight="bold">P&ID (SINGLE ANALYZER)</text>
-            </g>
+\vspace{1cm}
 
-            <!-- ================= PIPING LINES ================= -->
-            
-            <!-- Headers (Outlets) -->
-            ${Line(100, 120, 1100, 120)}
-            ${Line(100, 700, 1100, 700)}
+\textbf{Special Terms and Conditions:}
+\begin{enumerate}
+    \item \textbf{Validity:} This quotation is valid for 30 days from the date of issuance.
+    \item \textbf{Taxes:} All prices quoted are excluding VAT.
+    \item \textbf{Payment Terms:} To be discussed and agreed upon (e.g., 50\% advance, 50\% upon completion).
+    \item \textbf{Exclusions:} Any additional site working days beyond the quoted duration will be charged separately at an agreed daily rate.
+\end{enumerate}
 
-            <!-- Fan Discharge Line (Inlet 1) -->
-            ${Line(60, 280, 650, 280)}
-            
-            <!-- C.E Line (Inlet 2) -->
-            ${Line(60, 450, 450, 450)}
-            ${Line(450, 450, 450, 492)}
-            
-            <!-- T.E Line (Inlet 3) -->
-            ${Line(60, 550, 450, 550)}
-            ${Line(450, 550, 450, 508)}
-            
-            <!-- SCAV Line (From H13) -->
-            ${Line(460, 500, 520, 500)}
-            ${Line(520, 500, 520, 380)}
-            ${Line(520, 380, 650, 380)}
-            ${Line(650, 380, 650, 288)}
-            
-            <!-- Scavenging Drops -->
-            ${Line(550, 380, 550, 700)}
-            ${Line(600, 380, 600, 120)}
-            
-            <!-- Cal Gas Line -->
-            ${Line(60, 620, 700, 620)}
-            ${Line(700, 620, 700, 280)}
+\vspace{1.5cm}
 
-            <!-- Analyzer Main Line (From H12 Output) -->
-            ${Line(660, 280, 1050, 280)}
-            ${Line(1050, 280, 1050, 700)}
+\begin{flushleft}
+    Sincerely, \\
+    \vspace{1.5cm}
+    \textbf{H. S. Kim / President} \\
+    KJ Dynatech Inc.
+\end{flushleft}
 
-            <!-- Pressure Gauges Manifold (From Fan Discharge) -->
-            ${Line(140, 280, 140, 80)}
-            ${Line(200, 280, 200, 120)}
-            ${Line(280, 280, 280, 120)}
-            ${Line(280, 200, 280, 120)}
-            ${Line(380, 280, 380, 140)}
-
-            <!-- Test Valve Branch -->
-            ${Line(680, 280, 680, 220)}
-
-            <!-- ================= CONNECTION DOTS ================= -->
-            ${Dot(140, 280)} ${Dot(200, 280)} ${Dot(200, 120)}
-            ${Dot(280, 280)} ${Dot(280, 120)} ${Dot(380, 280)}
-            ${Dot(550, 380)} ${Dot(550, 700)} ${Dot(600, 380)}
-            ${Dot(600, 120)} ${Dot(680, 280)} ${Dot(700, 280)}
-            ${Dot(1050, 700)}
-
-            <!-- ================= INSTRUMENTS & COMPONENTS ================= -->
-            
-            <!-- Pressure Instruments -->
-            ${Instrument(140, 80, "T-1", "Press. Tx")}
-            ${Valve(140, 160, "H15", "V")}
-            
-            ${Valve(200, 180, "H10", "V")}
-            <text x="215" y="184" font-size="11" fill="#475569">Eq. Valve</text>
-
-            ${Instrument(280, 160, "C", "Diff. Press")}
-            ${Valve(280, 220, "H11", "V")}
-
-            ${Instrument(380, 140, "G-1", "High Press.")}
-            ${Valve(380, 200, "H14", "V")}
-
-            <!-- Filters -->
-            ${Filter(120, 280, "B3")}
-            ${Filter(140, 450, "B2")}
-            ${Filter(140, 550, "B1")}
-
-            <!-- C.E & T.E Lines Valves -->
-            ${Valve(230, 450, "H3")}
-            ${MeteringValve(350, 450, "H7")}
-            
-            ${Valve(230, 550, "H4")}
-            ${MeteringValve(350, 550, "H8")}
-
-            ${Valve3Way(450, 500, "H13", 20, 4)}
-            <text x="475" y="495" font-size="12" font-weight="bold" fill="#0284c7">SCAV</text>
-
-            <!-- Scavenging & By-pass -->
-            ${FlowMeter(550, 580, "F-1", "Total Flow")}
-            ${Valve(600, 220, "H17", "V")}
-            <text x="615" y="224" font-size="11" fill="#475569">By-pass</text>
-
-            <!-- Fan Discharge Main Valve -->
-            ${Valve(450, 280, "H9")}
-
-            <!-- Analyzer Selector 3-Way Valve -->
-            ${Valve3Way(650, 280, "H12", 18, -15)}
-
-            <!-- Test & Cal Gas -->
-            ${Valve(680, 235, "H18", "V")}
-            <text x="680" y="200" text-anchor="middle" font-size="11" font-weight="bold" fill="#e11d48">TEST</text>
-            ${Line(675, 205, 685, 205)}
-
-            ${Valve(700, 450, "H1", "V")}
-
-            <!-- Analyzer Line Components -->
-            ${Valve(760, 280, "H5")}
-            <text x="760" y="255" text-anchor="middle" font-size="11" fill="#475569">Analyzer Root</text>
-
-            ${BoxBlock(860, 280, 50, 60, "DC", "Desiccant")}
-            
-            ${FlowMeter(960, 280, "F-2", "Analyzer")}
-
-            ${BoxBlock(1050, 280, 80, 60, "GACB-1", "Cell Block")}
-
-
-            <!-- ================= LABELS & ARROWS ================= -->
-            
-            <!-- Inlet Labels -->
-            <text x="50" y="275" text-anchor="end" font-size="12" font-weight="bold" fill="#0f172a">Fan Discharge</text>
-            <text x="50" y="290" text-anchor="end" font-size="11" fill="#475569">발전기 팬 토출</text>
-            ${Arrow(60, 280, "RIGHT")}
-
-            <text x="50" y="445" text-anchor="end" font-size="12" font-weight="bold" fill="#0f172a">Collector End</text>
-            <text x="50" y="460" text-anchor="end" font-size="11" fill="#475569">콜렉터 측 (C.E)</text>
-            ${Arrow(60, 450, "RIGHT")}
-
-            <text x="50" y="545" text-anchor="end" font-size="12" font-weight="bold" fill="#0f172a">Turbine End</text>
-            <text x="50" y="560" text-anchor="end" font-size="11" fill="#475569">터빈 측 (T.E)</text>
-            ${Arrow(60, 550, "RIGHT")}
-
-            <text x="50" y="615" text-anchor="end" font-size="12" font-weight="bold" fill="#0f172a">Cal. Gas Supply</text>
-            <text x="50" y="630" text-anchor="end" font-size="11" fill="#475569">교정 가스 인입</text>
-            ${Arrow(60, 620, "RIGHT")}
-
-            <!-- Outlet Labels -->
-            ${Arrow(1100, 120, "RIGHT")}
-            <text x="1110" y="115" font-size="12" font-weight="bold" fill="#0f172a">Fan Suction</text>
-            <text x="1110" y="130" font-size="11" fill="#475569">발전기 팬 흡입</text>
-
-            ${Arrow(1100, 700, "RIGHT")}
-            <text x="1110" y="695" font-size="12" font-weight="bold" fill="#0f172a">Vent</text>
-            <text x="1110" y="710" font-size="11" fill="#475569">대기 방출</text>
-
-            <!-- Flow Direction Indicators -->
-            ${Arrow(160, 280, "RIGHT")}
-            ${Arrow(400, 280, "RIGHT")}
-            ${Arrow(460, 450, "DOWN")}
-            ${Arrow(460, 550, "UP")}
-            ${Arrow(520, 440, "UP")}
-            ${Arrow(620, 380, "RIGHT")}
-            ${Arrow(600, 280, "UP")}
-            ${Arrow(550, 480, "DOWN")}
-            ${Arrow(720, 280, "RIGHT")}
-            ${Arrow(1050, 360, "DOWN")}
-        `;
-
-        // 3. 생성된 콘텐츠를 DOM에 주입
-        document.getElementById('pid-canvas').innerHTML = svgContent;
-    </script>
-</body>
-</html>
+\end{document}
