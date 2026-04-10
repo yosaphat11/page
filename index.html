@@ -1,102 +1,287 @@
-\documentclass[11pt, a4paper]{article}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>벽산디지털밸리6차 전기차 충전 인프라 고도화안</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+/* 1. THE SETUP */
+* { box-sizing: border-box; }
+p { margin: 0; margin-bottom: 12px; }
 
-% --- UNIVERSAL PREAMBLE BLOCK ---
-\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=2cm, right=2cm]{geometry}
-\usepackage{fontspec}
-\usepackage[english, bidi=basic, provide=*]{babel}
+body {
+  background-color: #f1f5f9;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+  margin: 0;
+  min-height: 100vh;
+  padding: 20px 0;
+  place-items: center;
+}
 
-\babelprovide[import, onchar=ids fonts]{english}
+.slide-container {
+  align-items: center;
+  background-color: #fff;
+  border-radius: 0;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Noto Sans KR', sans-serif;
+  height: 720px;
+  justify-content: center;
+  overflow: hidden;
+  padding: 60px;
+  position: relative;
+  width: 1280px;
+}
 
-% Set default/Latin font to Sans Serif in the main (rm) slot
-\babelfont{rm}{Noto Sans}
+/* 1.1 BACKGROUND STYLING */
+.slide-container::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  z-index: 0;
+}
 
-\usepackage{enumitem}
-\setlist[itemize]{label=-}
-% --- END UNIVERSAL PREAMBLE BLOCK ---
+.slide-container::after {
+  content: '';
+  position: absolute;
+  top: -10%; right: -5%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(15, 118, 110, 0.05) 0%, transparent 70%);
+  z-index: 0;
+}
 
-\usepackage{amsmath}
-\usepackage{booktabs}
-\usepackage{tabularx}
-\usepackage{fancyhdr}
-\usepackage{lastpage}
+.slide-container > * { position: relative; z-index: 1; }
 
-% Custom Colors and Styling
-\usepackage[table]{xcolor}
-\definecolor{kjblue}{RGB}{31, 73, 125}
+/* 2. TYPOGRAPHY */
+.slide-container h1 { font-family: 'Poppins', 'Noto Sans KR', sans-serif; font-size: 64px; color: #0f172a; margin: 0; font-weight: 700; line-height: 1.2; text-align: center; }
+.slide-container .slide-title { font-size: 42px; font-weight: 700; color: #1e293b; margin-bottom: 40px; text-align: left; width: 100%; border-left: 10px solid #0f766e; padding-left: 20px; }
+.slide-container h3 { font-size: 28px; font-weight: 700; color: #0d9488; margin-bottom: 15px; }
+.slide-container p, .slide-container li, .slide-container td, .slide-container th { font-size: 20px; line-height: 1.6; color: #475569; }
+.slide-container .subtitle { font-size: 26px; color: #64748b; margin-top: 20px; text-align: center; }
 
-\pagestyle{fancy}
-\fancyhf{}
-\renewcommand{\headrulewidth}{0.5pt}
-\lhead{\small \textbf{KJ Dynatech Inc.}}
-\rhead{\small Quotation No: KJ-QT-260327-001}
-\cfoot{\small Page \thepage\ of \pagpage}
+/* 3. LAYOUTS */
+.content-area { display: flex; flex-direction: column; flex-grow: 1; justify-content: center; width: 100%; }
+.two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 100%; align-items: center; }
+.tiled-content { display: flex; gap: 30px; width: 100%; }
+.tile { flex: 1; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+.tile .icon { font-size: 48px; color: #0f766e; margin-bottom: 20px; }
 
-\begin{document}
+.highlight-numbers-layout { display: flex; align-items: center; justify-content: center; width: 100%; }
+.highlight-numbers-layout .number-box { text-align: center; }
+.highlight-numbers-layout .number { font-size: 200px; font-weight: 800; color: #0f766e; font-family: 'Poppins', sans-serif; line-height: 1; }
+.highlight-numbers-layout .unit { font-size: 60px; vertical-align: middle; margin-left: -10px; }
+.highlight-numbers-layout .number-label { font-size: 32px; font-weight: 700; color: #334155; }
 
-% Header / Logo Placeholder area
-\begin{center}
-    {\LARGE \textbf{\textcolor{kjblue}{QUOTATION}}} \\
-    \vspace{0.2cm}
-    \small \textbf{KJ Dynatech Inc.} \\
-    \footnotesize Suite 506, Byucksan Digital Valley 6, 219 Gasan-digital 1-ro, Geumcheon-gu, Seoul, 08501, Korea \\
-    \footnotesize Tel: +82-2-858-9844 | Fax: +82-2-858-3047 | http://www.kjdyna.com
-\end{center}
+.image-wrapper { border-radius: 12px; overflow: hidden; height: 380px; width: 100%; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 4px solid #fff; }
+.image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
 
-\vspace{0.5cm}
+.table-layout table { width: 100%; border-collapse: collapse; }
+.table-layout th { background: #f8fafc; border-bottom: 2px solid #0f766e; color: #0f172a; padding: 20px; text-align: left; font-size: 22px; }
+.table-layout td { border-bottom: 1px solid #e2e8f0; padding: 20px; font-size: 20px; }
+.table-layout tr:last-child td { border-bottom: none; }
 
-\begin{tabularx}{\textwidth}{lX l X}
-    \textbf{To:} & Sparks Instrument & \textbf{Date:} & March 27, 2026 \\
-    \textbf{Attn:} & Reference Person & \textbf{Quotation No:} & KJ-QT-260327-001 \\
-    \textbf{Project:} & \multicolumn{3}{l}{MV Motor \& IPB Online PDMS Site Working for Omon CCPP Project} \\
-\end{tabularx}
+.timeline-layout { display: flex; justify-content: space-between; position: relative; width: 100%; padding-top: 50px; }
+.timeline-line { position: absolute; top: 40px; left: 0; width: 100%; height: 4px; background: #cbd5e1; }
+.timeline-item { flex: 1; text-align: center; padding: 0 10px; position: relative; }
+.timeline-item::before { content: ''; position: absolute; top: -18px; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: #0f766e; border-radius: 50%; border: 4px solid #fff; }
 
-\vspace{0.8cm}
+.bullet-list { list-style: none; padding: 0; }
+.bullet-list li { position: relative; padding-left: 40px; margin-bottom: 20px; font-size: 22px; }
+.bullet-list li i { position: absolute; left: 0; top: 5px; color: #0f766e; font-size: 24px; }
 
-We are pleased to submit our quotation for the site services as detailed below:
+.label-tag { background: #0f766e; color: #fff; padding: 4px 12px; border-radius: 6px; font-size: 16px; font-weight: 700; margin-bottom: 8px; display: inline-block; }
 
-\vspace{0.3cm}
+/* 4. SECTION & QA */
+.section-title-layout { text-align: center; }
+.section-title-layout hr { width: 80px; height: 6px; background: #0f766e; border: none; margin: 30px auto; }
 
-\renewcommand{\arraystretch}{1.5}
-\begin{tabularx}{\textwidth}{|c|X|c|r|}
-    \hline
-    \rowcolor{kjblue!10} \textbf{No.} & \textbf{Description \& Specification} & \textbf{Qty/Unit} & \textbf{Amount (USD)} \\
-    \hline
-    \textbf{A} & \textbf{Site (Vietnam) Working (Optional)} & & \\
-    \hline
-    1 & \textbf{Supervising for PD Sensor Installation} \newline 
-    - Supervising for PD sensor installation \newline
-    - 3x motors for installation sample \newline
-    \textit{*Includes: Flight (1x round-trip), accommodations, meals, local transportation (car rent), and Visa issuance.} & 7 M.Day & -- \\
-    \hline
-    2 & \textbf{Erection \& Commissioning} \newline
-    - Checking for Equipments and Server Installation \newline
-    - Checking for Server PC \& S/W setting \newline
-    - Test for PDMS operating and DAU Calibration \newline
-    - Test for PD data reading and recording \newline
-    - Operator Training \newline
-    \textit{*Includes: Flight (4x round-trip), accommodations, meals, and local transportation (car rent).} & 120 M.Day & -- \\
-    \hline
-    \rowcolor{kjblue!5} \multicolumn{3}{|r|}{\textbf{TOTAL AMOUNT (Excluding VAT)}} & \textbf{US\$ 111,750.00} \\
-    \hline
-\end{tabularx}
+.qa-layout h2 { font-size: 100px; color: #0f766e; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
 
-\vspace{1cm}
 
-\textbf{Special Terms and Conditions:}
-\begin{enumerate}
-    \item \textbf{Validity:} This quotation is valid for 30 days from the date of issuance.
-    \item \textbf{Taxes:} All prices quoted are excluding VAT.
-    \item \textbf{Payment Terms:} To be discussed and agreed upon (e.g., 50\% advance, 50\% upon completion).
-    \item \textbf{Exclusions:} Any additional site working days beyond the quoted duration will be charged separately at an agreed daily rate.
-\end{enumerate}
+<div class="slide-container" id="slide1">
+    <div class="title-layout">
+        <h1>전기차 충전 인프라 고도화 사업안</h1>
+        <p class="subtitle">지출 비용 0원, 주차 갈등 제로, 화재 안전 100%</p>
+        <div style="margin-top: 80px; text-align: center;">
+            <p style="font-size: 24px; font-weight: 700; color: #0f172a;">발표자: 5층 대표 김형승</p>
+            <p style="font-size: 20px; color: #64748b;">벽산디지털밸리6차 관리단 정기 회의</p>
+        </div>
+    </div>
+</div>
 
-\vspace{1.5cm}
 
-\begin{flushleft}
-    Sincerely, \\
-    \vspace{1.5cm}
-    \textbf{H. S. Kim / President} \\
-    KJ Dynatech Inc.
-\end{flushleft}
+<div class="slide-container" id="slide2">
+    <h2 class="slide-title">핵심 추진 전략</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-coins"></i></div>
+                <div class="label-tag">건물 자부담 0원</div>
+                <h3>전액 무상 구축</h3>
+                <p>정부 보조금을 100% 활용하여 관리단 예산 지출 없이 신규 기기 10대를 추가 설치합니다.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-car-side"></i></div>
+                <div class="label-tag">주차난 해소</div>
+                <h3>전 구역 병행주차</h3>
+                <p>신규 및 기존 충전 구역 전체를 '병행주차구역'으로 설정하여 일반 차량 주차 공간을 확보합니다.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-shield-fire"></i></div>
+                <div class="label-tag">최신 기술 적용</div>
+                <h3>화재 차단 시스템</h3>
+                <p>과충전 방지 스마트 제어가 탑재된 최신형 기기를 도입하여 화재 위험을 원천 차단합니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-\end{document}
+
+<div class="slide-container" id="slide3">
+    <h2 class="slide-title">사업자 선정 결과: i PARKING EV</h2>
+    <div class="content-area">
+        <div class="table-layout">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="20%">비교 항목</th>
+                        <th width="40%">아이파킹 EV (성재우 매니저)</th>
+                        <th width="40%">GS 차지비 (기존 사업자)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>건물 부담금</strong></td>
+                        <td><span style="color: #0d9488; font-weight: 800;">0원 (보조금 100% 활용)</span></td>
+                        <td><span style="color: #ef4444;">보조금 수령 불가 (자부담 발생)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>충전 요금</strong></td>
+                        <td>285원~299원/kWh (업계 최저)</td>
+                        <td>319원/kWh</td>
+                    </tr>
+                    <tr>
+                        <td><strong>화재 예방</strong></td>
+                        <td>과충전 방지 스마트 제어 + 소화 스틱</td>
+                        <td>스마트 제어 위주</td>
+                    </tr>
+                    <tr>
+                        <td><strong>주차 연동</strong></td>
+                        <td>전국 1위 주차 관제 시스템 연동</td>
+                        <td>단순 충전 서비스 위주</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="margin-top: 20px; text-align: center; color: #ef4444; font-weight: 700;">* GS차지비는 현재 보조금 지원 대상에서 제외되어 우리 건물의 실익이 낮으므로 협상에서 제외함</p>
+    </div>
+</div>
+
+
+<div class="slide-container" id="slide4">
+    <h2 class="slide-title">지하 1층 설치 계획 (4대)</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <div class="label-tag">설치 위치: 지하 1층 05번 기둥 인근</div>
+                <h3>업무 중심지 집중 배치</h3>
+                <p>입주사 차량의 출입이 가장 빈번한 지하 1층에 4대를 신설하여 업무 편의성을 극대화합니다.</p>
+                <ul class="bullet-list">
+                    <li><i class="fa-solid fa-circle-check"></i> 병행주차구역 표시 완료 후 운영</li>
+                    <li><i class="fa-solid fa-circle-check"></i> 기존 배선망 최적 활용으로 공기 단축</li>
+                </ul>
+            </div>
+            <div class="image-wrapper">
+                <img src="image_d3aa8c.jpg" alt="지하 1층 설치 예정 구역">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="slide-container" id="slide5">
+    <h2 class="slide-title">지상 1층 설치 계획 (6대)</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div class="image-wrapper">
+                <img src="image_d3aaa9.jpg" alt="지상 1층 설치 예정 구역">
+            </div>
+            <div>
+                <div class="label-tag">설치 위치: 지상 주차장 좌측 면</div>
+                <h3>방문객 및 대형 차량 배려</h3>
+                <p>접근성이 좋은 지상 1층에 6대를 집중 배치하여 외부 방문객 및 화물 EV 차량의 충전을 지원합니다.</p>
+                <ul class="bullet-list">
+                    <li><i class="fa-solid fa-circle-check"></i> 지상 전 구역 병행주차로 공간 효율화</li>
+                    <li><i class="fa-solid fa-circle-check"></i> 시인성 높은 바닥 도색(무상 지원)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="slide-container" id="slide6">
+    <h2 class="slide-title">안전 강화: 과충전 방지 시스템</h2>
+    <div class="content-area">
+        <div class="two-column" style="grid-template-columns: 40% 60%;">
+            <div style="text-align: center;">
+                <i class="fa-solid fa-shield-virus" style="font-size: 200px; color: #0d9488;"></i>
+                <h3 style="margin-top: 20px;">화재 리스크 ZERO</h3>
+            </div>
+            <div class="tile" style="text-align: left;">
+                <h3 style="color: #0f172a;">스마트 제어 기술의 핵심</h3>
+                <p>최근 전기차 화재의 주원인은 **'배터리 과충전'**입니다. 신규 도입되는 기기는 이를 물리적으로 차단합니다.</p>
+                <ul class="bullet-list">
+                    <li><i class="fa-solid fa-bolt"></i> <strong>배터리 정보 연동:</strong> 차량 배터리 잔량을 실시간 파악</li>
+                    <li><i class="fa-solid fa-ban"></i> <strong>자동 전력 차단:</strong> 설정값(80~90%) 도달 시 즉각 차단</li>
+                    <li><i class="fa-solid fa-fire-extinguisher"></i> <strong>2중 안전 장치:</strong> 분전함 내 자동 분사 소화 스틱 설치</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="slide-container" id="slide7">
+    <h2 class="slide-title">기존 기기(B3) 처리 및 유지보수</h2>
+    <div class="content-area">
+        <div class="tile" style="text-align: left; margin-bottom: 30px; border-left: 8px solid #64748b;">
+            <h3>지하 3층 기존 기기 반납 계획</h3>
+            <p>현재 지하 3층에서 운영 중인 GS차지비 노후 기기는 계약 종료에 맞춰 **정식 회수 요청**을 진행합니다.</p>
+            <p style="font-size: 18px; color: #64748b;">* 기기 컨디션이 양호하여 GS 측에서 긍정적으로 회수할 것으로 예상되며, 공실 구역은 아이파킹에서 보강 설치하거나 병행주차구역으로 관리합니다.</p>
+        </div>
+        <div class="tile" style="text-align: left; border-left: 8px solid #0d9488;">
+            <h3>향후 10년 통합 관리</h3>
+            <ul class="bullet-list">
+                <li><i class="fa-solid fa-screwdriver-wrench"></i> <strong>전담 시공:</strong> 텡리에너지(변현식 대표) 책임 시공 및 신속 A/S</li>
+                <li><i class="fa-solid fa-headset"></i> <strong>24시간 관제:</strong> 아이파킹 통합 콜센터에서 모든 민원 처리</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<div class="slide-container" id="slide8">
+    <div class="qa-layout">
+        <h1 style="font-size: 80px; color: #0d9488;">감사합니다</h1>
+        <p class="subtitle" style="font-weight: 700;">비용 부담 없이, 안전하고 편리한 벽산을 만들겠습니다.</p>
+        <div style="margin-top: 80px; padding: 40px; border: 2px dashed #cbd5e1; border-radius: 20px; display: inline-block;">
+            <p style="font-size: 24px; color: #0f172a;"><strong>발표자: 5층 대표 김형승</strong></p>
+            <p style="font-size: 18px; color: #64748b;">사업 파트너: 아이파킹 EV (성재우 매니저)</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
